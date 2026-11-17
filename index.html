@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Diário de Bordo — Ushuaia 2027</title>
+<meta name="description" content="Diário de bordo offline para expedição de moto: roteiro, odômetro, gastos e grupo.">
+<meta name="theme-color" content="#253021" id="meta-theme">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Ushuaia 2027">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header id="hdr">
+  <div class="h-top">
+    <span class="badge" id="badge">—</span>
+    <span class="net" id="net"></span>
+    <button class="btn-top" data-act="toggleDash" id="dash-btn">Painel ▾</button>
+  </div>
+  <h1 id="trip-title">Diário de Bordo</h1>
+  <div class="progress-line"><span id="pl-left"></span><b id="pl-right"></b></div>
+  <div class="track"><div class="fill" id="fill"></div></div>
+  <div class="dash hidden" id="dash"></div>
+</header>
+
+<main id="view" class="container"></main>
+
+<button class="fab" data-act="quick" aria-label="Registrar rápido">+</button>
+
+<nav class="nav" id="nav">
+  <button data-act="nav" data-view="route"><span>🗺️</span>Roteiro</button>
+  <button data-act="nav" data-view="finance"><span>💰</span>Gastos</button>
+  <button data-act="nav" data-view="lists"><span>✅</span>Listas</button>
+  <button data-act="nav" data-view="group"><span>👥</span>Grupo</button>
+  <button data-act="nav" data-view="more"><span>⚙️</span>Mais</button>
+</nav>
+
+<div class="modal hidden" id="modal">
+  <div class="backdrop" data-act="backdrop"></div>
+  <div class="sheet" id="sheet"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<input type="file" id="photoInput" accept="image/*" hidden>
+<input type="file" id="importInput" accept="application/json,.json" hidden>
+
+<noscript><p style="padding:20px">Este aplicativo precisa de JavaScript.</p></noscript>
+<script src="data.js"></script>
+<script src="core.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
