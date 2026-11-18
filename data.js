@@ -127,8 +127,8 @@ const TRIP = [
 /* Checklists. perPerson=true → cada integrante do grupo marca o seu. */
 const LISTS = [
   { id: "docs", title: "Documentação, Câmbio & Seguros (BR / AR / CL / UY)", perPerson: true, items: [
-    { id: "d1", t: "<strong>Seguro Carta Verde (impresso):</strong> cobertura obrigatória para terceiros no Mercosul (Argentina e Uruguai), uma para cada moto." },
-    { id: "d2", t: "<strong>Seguro SOAPEX (impresso):</strong> seguro obrigatório exclusivo para circular no Chile, uma para cada moto." },
+    { id: "d1", veh: true, t: "<strong>Seguro Carta Verde (impresso):</strong> cobertura obrigatória para terceiros no Mercosul (Argentina e Uruguai), uma para cada moto." },
+    { id: "d2", veh: true, t: "<strong>Seguro SOAPEX (impresso):</strong> seguro obrigatório exclusivo para circular no Chile, uma para cada moto." },
     { id: "d3", t: "<strong>Seguro viagem pessoal:</strong> emitir pelo cartão (se a passagem for paga com ele) ou contratar um com cobertura para motociclismo." },
     { id: "d4", t: "<strong>Cartão internacional (ex.: Nomad):</strong> débito com IOF reduzido para postos, pedágios e hotéis." },
     { id: "d5", t: "<strong>Dólar em espécie (reserva de segurança):</strong> sugestão de USD 1.000 a 1.500 por pessoa (notas novas de 100 'cara grande' ou azuis) para câmbio e emergências." },
@@ -160,5 +160,27 @@ const LISTS = [
     { id: "b5", t: "<strong>Dia 12 • Paso San Sebastián (AR ➔ CL):</strong> nova entrada no Chile (guardar o PDI novamente)." },
     { id: "b6", t: "<strong>Dia 14 • Paso Don Guillermo / Cerro Castillo (CL ➔ AR):</strong> saída do Chile e entrada na Argentina rumo a El Calafate." },
     { id: "b7", t: "<strong>Dia 22 • Retorno ao Brasil (AR ➔ BR):</strong> conferir saída das motos da Argentina e entrada no Brasil." }
+  ]}
+];
+
+/* Checklists genéricas para viagens criadas pelo planejador */
+const LISTS_GENERIC = [
+  { id: "docs", title: "Documentos & Reservas", perPerson: true, items: [
+    { id: "g1", t: "<strong>Documento de identidade / passaporte</strong> válido para todos os países do roteiro." },
+    { id: "g2", veh: true, t: "<strong>CNH e documento do veículo</strong> (CRLV) + seguro obrigatório da região." },
+    { id: "g3", t: "<strong>Seguro viagem</strong> com cobertura médica e para a modalidade da viagem." },
+    { id: "g4", t: "<strong>Cartão internacional e dinheiro</strong> (moeda local / dólar) para emergências." },
+    { id: "g5", t: "<strong>Reservas e passagens salvas offline</strong> (PDF/print): hotéis, voos, ônibus, balsas." }
+  ]},
+  { id: "personal", title: "Checklist Pessoal & Bagagem", perPerson: true, items: [
+    { id: "g6", t: "<strong>Roupas</strong> adequadas ao clima de cada região do roteiro (incluindo capa de chuva)." },
+    { id: "g7", t: "<strong>Remédios e kit de higiene</strong> pessoais." },
+    { id: "g8", t: "<strong>Carregadores, power bank e cabos.</strong>" },
+    { id: "g9", t: "<strong>Mapas offline baixados</strong> (Google Maps ou Organic Maps) de todas as regiões." }
+  ]},
+  { id: "moto", title: "Preparação do veículo", perPerson: true, items: [
+    { id: "g10", veh: true, t: "<strong>Revisão feita:</strong> óleo e filtro, freios, pneus, corrente/correias, luzes." },
+    { id: "g11", veh: true, t: "<strong>Ferramentas e kit de reparo</strong> (pneus, silver tape, abraçadeiras)." },
+    { id: "g12", veh: true, t: "<strong>Galão extra de combustível</strong> para trechos longos sem postos." }
   ]}
 ];

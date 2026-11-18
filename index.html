@@ -23,7 +23,7 @@
     <span class="net" id="net"></span>
     <button class="btn-top" data-act="toggleDash" id="dash-btn">Painel ▾</button>
   </div>
-  <h1 id="trip-title">Diário de Bordo</h1>
+  <h1 id="trip-title" data-act="trips" title="Trocar de viagem">Diário de Bordo</h1>
   <div class="progress-line"><span id="pl-left"></span><b id="pl-right"></b></div>
   <div class="track"><div class="fill" id="fill"></div></div>
   <div class="dash hidden" id="dash"></div>
@@ -49,10 +49,17 @@
 
 <input type="file" id="photoInput" accept="image/*" hidden>
 <input type="file" id="importInput" accept="application/json,.json" hidden>
+<input type="file" id="ocrInput" accept="image/*" hidden>
 
 <noscript><p style="padding:20px">Este aplicativo precisa de JavaScript.</p></noscript>
 <script src="data.js"></script>
 <script src="core.js"></script>
 <script src="app.js"></script>
+<script src="modals.js"></script>
+<script src="trips.js"></script>
+<script src="ocr.js"></script>
+<script src="io.js"></script>
+<script src="actions.js"></script>
+<script src="boot.js"></script>
 </body>
 </html>

@@ -1,34 +1,37 @@
-# Diário de Bordo — Ushuaia 2027 (app offline)
+# Diário de Bordo (app offline) — v1.1
 
 Aplicativo web (PWA) para usar no celular durante a viagem. Depois de aberto uma vez com internet, funciona **sem sinal**.
 
 ## Arquivos (publique todos juntos, mantendo a pasta `icons`)
 
 ```
-index.html   style.css   data.js   core.js   app.js
-manifest.webmanifest   sw.js   icons/ (4 PNG)
+index.html  style.css  data.js  core.js  app.js  modals.js  trips.js
+ocr.js  io.js  actions.js  boot.js  manifest.webmanifest  sw.js  icons/ (4 PNG)
 ```
 
-## Publicar no GitHub Pages
+Novos na v1.1: `modals.js`, `trips.js`, `ocr.js`, `io.js`, `actions.js`, `boot.js`. Alterados: `index.html`, `style.css`, `data.js`, `core.js`, `app.js`, `sw.js`.
 
-1. Crie uma conta em github.com e um repositório **novo**, ex.: `ushuaia2027` (pode ser público; o app não contém dados pessoais, eles ficam só no celular).
-2. Na página do repositório: **Add file ▸ Upload files** e arraste **o conteúdo da pasta `app`** (os arquivos acima e a pasta `icons`, não a pasta `app` em si). Clique em **Commit changes**.
-3. **Settings ▸ Pages ▸ Build and deployment**: Source = *Deploy from a branch*, Branch = `main` / `/ (root)` ▸ **Save**.
-4. Em 1–2 minutos o endereço aparece: `https://SEU-USUARIO.github.io/ushuaia2027/`.
+## Publicar / atualizar no GitHub Pages
+
+1. No repositório: **Add file ▸ Upload files**, arraste o **conteúdo** da pasta `app` (não a pasta em si) e **Commit changes**.
+2. **Settings ▸ Pages**: Source = *Deploy from a branch*, `main` / `/ (root)`.
+3. Para atualizar, troque os arquivos e **aumente `VERSION` em `sw.js`**. Os celulares mostram "Nova versão disponível ▸ Atualizar". Os dados não são apagados.
 
 ## Instalar no celular
 
-- **Android (Chrome):** abra o endereço ▸ menu ⋮ ▸ **Instalar app** (ou use o botão em *Mais*).
-- **iPhone (Safari):** abra o endereço ▸ Compartilhar ▸ **Adicionar à Tela de Início**. Use sempre o ícone instalado.
-- Abra o app **uma vez com internet** e navegue pelas abas. Em *Mais* deve aparecer "✅ Pronto para uso offline".
-- Em *Mais*, toque em **Proteger dados contra limpeza do navegador**.
+- **Android (Chrome):** menu ⋮ ▸ **Instalar app**. **iPhone (Safari):** Compartilhar ▸ **Adicionar à Tela de Início**.
+- Abra uma vez com internet; em *Mais* deve aparecer "Pronto para uso offline". Toque em **Proteger dados contra limpeza**.
 
-## Atualizar o app depois
+## Novidades da v1.1
 
-Troque os arquivos no GitHub e **aumente `VERSION` em `sw.js`** (ex.: `v1.0.1`). Os celulares mostram "Nova versão disponível ▸ Atualizar" quando abrirem com internet. Os dados da viagem não são apagados.
+- **Foto do cupom fiscal / painel da moto** (📷 no gasto): lê total, litros e odômetro; você sempre confirma tocando no valor sugerido. Funciona com internet; para funcionar **sem internet**, copie para `vendor/tesseract/` os arquivos `tesseract.min.js`, `worker.min.js`, `core/tesseract-core-simd-lstm.wasm.js`, `core/tesseract-core-lstm.wasm.js` e `lang/eng.traineddata.gz` (pacote tesseract.js 5.1.1 / tesseract.js-core 5 / dados "eng") e suba a pasta ao GitHub. Digitar à mão sempre funciona.
+- **Modo da viagem** (Mais): moto, carro, a pé (passagens) ou bicicleta. Combustível e veículos só aparecem para moto/carro.
+- **Troca de óleo e filtro**: no cadastro do veículo informe a cada quantos km e o km da última troca; o app alerta e indica o dia previsto.
+- **Odômetro**: o fim do dia anterior já aparece no início do seguinte; ao registrar a chegada informe a cidade, que vira a saída do dia seguinte.
+- **Abastecimento**: mostra na hora o consumo (km/L) do trecho (tanque cheio a tanque cheio).
+- **🔀 Replanejar**: em qualquer dia, informe o novo caminho até o destino final, dia a dia (dá para desfazer).
+- **Novas viagens** (toque no título): defina início, fim, datas, dias de permanência e atrações; o app monta os dias e abre a rota completa no Google Maps. Sem internet os km não são calculados: digite-os ou consulte o Maps.
 
 ## Dados e backup
 
-- Tudo é guardado no aparelho (IndexedDB). **Faça backup** em *Mais ▸ Exportar backup* quando tiver sinal (o app avisa se passar de 3 dias).
-- Para juntar os dados do grupo: cada um exporta o seu arquivo e os outros usam *Importar ▸ Mesclar*.
-- Fotos ficam só no aparelho e não entram no backup.
+- Tudo fica no aparelho. **Exporte backup** em *Mais* quando tiver sinal. Para juntar dados do grupo: *Importar ▸ Mesclar*. Fotos não entram no backup.

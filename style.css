@@ -189,3 +189,11 @@ body.gloves .fab { width: 72px; height: 72px; }
 .toast button { background: var(--amber); color: #111; border: 0; border-radius: 8px; padding: 6px 12px; font-weight: 700; min-height: 36px; }
 .viewer { position: fixed; inset: 0; z-index: 400; background: rgba(0,0,0,.92); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 12px; }
 .viewer img { max-width: 100%; max-height: 80vh; border-radius: 8px; }
+
+/* v1.1 */
+h1[data-act] { cursor: pointer; }
+a.chip { text-decoration: none; }
+.box .chips { margin: 4px 0 0; }
+details summary { cursor: pointer; margin-top: 4px; }
+.sheet .card { margin-bottom: 10px; }
+.sheet pre { max-height: 160px; overflow: auto; }
