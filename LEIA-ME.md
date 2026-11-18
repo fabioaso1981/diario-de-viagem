@@ -1,4 +1,8 @@
-# Diário de Bordo (app offline) — v1.1
+# DiBordo — seu diário de bordo, com ou sem sinal (v1.2)
+
+Marca: nome **DiBordo**, cores #253021 (verde-oliva), #E6A817 (âmbar), #F2F4F1; fontes sugeridas Montserrat/Outfit (títulos) e Inter (textos). Arquivos de referência da identidade visual em `marca/` (não precisam ir para o GitHub).
+
+Ao atualizar: suba também `icons/` (4 ícones novos) e `manifest.webmanifest`. Quem já instalou o app antigo deve desinstalar e instalar de novo para ver o novo nome e ícone.
 
 Aplicativo web (PWA) para usar no celular durante a viagem. Depois de aberto uma vez com internet, funciona **sem sinal**.
 

@@ -197,3 +197,7 @@ a.chip { text-decoration: none; }
 details summary { cursor: pointer; margin-top: 4px; }
 .sheet .card { margin-bottom: 10px; }
 .sheet pre { max-height: 160px; overflow: auto; }
+
+/* ===== Marca DiBordo ===== */
+.brand{font-weight:800;font-size:15px;letter-spacing:.2px;color:var(--amber);margin-right:auto}
+.brand i{font-style:normal;color:#a9b89a}

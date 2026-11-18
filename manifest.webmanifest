@@ -1,7 +1,7 @@
 {
-  "name": "Diário de Bordo — Ushuaia 2027",
-  "short_name": "Ushuaia 2027",
-  "description": "Diário de bordo offline da expedição de moto: roteiro, odômetro, gastos e grupo.",
+  "name": "DiBordo — Seu diário de bordo, com ou sem sinal",
+  "short_name": "DiBordo",
+  "description": "Diário de bordo offline para viagens de moto, carro, a pé ou bicicleta: roteiro, odômetro, consumo, gastos e grupo.",
   "lang": "pt-BR",
   "start_url": "./",
   "scope": "./",
