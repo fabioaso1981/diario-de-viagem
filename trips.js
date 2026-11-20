@@ -10,7 +10,7 @@ function openTrips() {
     const m = MODES[t.mode];
     return `<div class="cat"><div><b>${esc(t.name)}</b>${t.id === state.id ? ' <span class="tag">ABERTA</span>' : ''}<div class="small muted">${m ? m.icon + ' ' + esc(m.label) : ''}</div></div>
       <div class="row">${t.id !== state.id ? `<button class="btn sm" data-act="openTrip" data-id="${t.id}">Abrir</button>` : ''}${meta.trips.length > 1 ? `<button class="btn sm danger" data-act="delTrip" data-id="${t.id}">✕</button>` : ''}</div></div>`;
-  }).join('') + btns(B('planner', '🧭 Novo roteiro', 'amber'), B('closeModal', 'Fechar', 'ghost')));
+  }).join('') + btns(B('planner', '🧭 Novo roteiro', 'amber'), B('routes', '📚 Roteiros prontos', ''), B('closeModal', 'Fechar', 'ghost')));
 }
 async function openTripById(id) {
   persist();
@@ -114,7 +114,7 @@ function buildTripFromPlan(p) {
   let cursor = p.startDate, prev = p.start;
   p.rows.forEach(r => {
     const city = r.city.trim(), km = Math.max(0, num(r.km) || 0), stay = Math.max(0, parseInt(r.stay, 10) || 0), tours = parseTours(r.tours), stage = `Rumo a ${city}`;
-    add(prev, city, km, cursor, stage, `Trecho ${prev} → ${city}.${km ? ` ${nf(km)} km.` : ''} Veja a rota no botão "Mapa".`, stay === 0 ? tours : []);
+    add(prev, city, km, cursor, stage, `Trecho ${prev} → ${city}.${km ? ` ${nf(km)} km.` : ''}${r.note ? ' ' + r.note : ''} Veja a rota no botão "Mapa".`, stay === 0 ? tours : []);
     cursor = addDaysISO(cursor, 1);
     for (let k = 0; k < stay; k++) {
       add(city, city, 0, cursor, stage, `Dia de permanência em ${city}: aproveite as atrações.`, tours.filter((_, idx) => idx % stay === k));
@@ -124,16 +124,34 @@ function buildTripFromPlan(p) {
   });
   return st;
 }
+function copyGroupInto(st) {
+  st.people = JSON.parse(JSON.stringify(state.people));
+  if (MODES[st.mode].vehicle && MODES[state.mode].vehicle) st.vehicles = JSON.parse(JSON.stringify(state.vehicles));
+  ['rates', 'theme', 'gloves', 'autonomy'].forEach(k => { st.settings[k] = JSON.parse(JSON.stringify(state.settings[k])); });
+}
+/* Remove uma viagem vazia (ex.: a viagem em branco do primeiro uso) quando outra a substitui */
+async function dropTripData(id) {
+  meta.trips = meta.trips.filter(x => x.id !== id);
+  try { if (idbOk && IDB.db) await IDB.del('kv', kvKey(id)); } catch (e) { /* ok */ }
+  try { localStorage.removeItem(lsKey(id)); } catch (e) { /* ok */ }
+}
+async function activateTrip(st) {
+  const prev = state;
+  persist();
+  state = st; ensureVehicles(); meta.active = st.id;
+  if (prev && prev.id !== st.id && isEmptyTrip(prev)) await dropTripData(prev.id);
+  persist();
+  resetUiForTrip(); applyTheme(); closeModal();
+  renderHeader(); renderView(); window.scrollTo(0, 0);
+}
 async function plCreate() {
   plSync();
+  if (!canCreateTrip()) return openPaywall('trips');
   if (!plan.start) return toast('Informe o local de início.');
   if (!plan.startDate) return toast('Informe a data de início.');
   if (plan.rows.some(r => !r.city.trim())) return toast('Preencha a cidade de todas as paradas.');
   const st = buildTripFromPlan(plan);
-  persist();
-  state = st; ensureVehicles(); meta.active = st.id; persist();
-  resetUiForTrip(); applyTheme(); closeModal();
-  renderHeader(); renderView(); window.scrollTo(0, 0);
+  await activateTrip(st);
   toast(`Roteiro criado: ${st.order.length} dias. Use "🗺️ Rota completa" para ver no Google Maps.`);
 }
 

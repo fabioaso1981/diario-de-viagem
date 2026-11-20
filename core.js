@@ -124,7 +124,7 @@ async function readTrip(id) {
   let saved = null;
   if (idbOk) { try { saved = await IDB.get('kv', kvKey(id)); } catch (e) { /* ok */ } }
   if (!saved) { try { saved = JSON.parse(localStorage.getItem(lsKey(id))); } catch (e) { saved = null; } }
-  if (!saved) { const d = id === 'ushuaia' ? defaultState('ushuaia') : defaultState(null, 'moto', 'Nova viagem'); d.id = id; return d; }
+  if (!saved) { const d = id === 'ushuaia' ? defaultState('ushuaia') : defaultState(null, 'moto', 'Minha viagem'); d.id = id; return d; }
   const s = migrate(saved);
   s.id = id;
   return s;
@@ -135,7 +135,15 @@ async function loadState() {
   let m = null;
   if (idbOk) { try { m = await IDB.get('kv', 'meta'); } catch (e) { /* ok */ } }
   if (!m) { try { m = JSON.parse(localStorage.getItem(LS_META)); } catch (e) { m = null; } }
-  meta = m && Array.isArray(m.trips) && m.trips.length ? m : { active: 'ushuaia', trips: [{ id: 'ushuaia', name: 'Expedição Ushuaia • Fin del Mundo', mode: 'moto' }] };
+  if (m && Array.isArray(m.trips) && m.trips.length) meta = m;
+  else {
+    /* Sem meta: instalação nova (começa em branco) ou versão 1.0 antiga (dados do Ushuaia na chave 'state') */
+    let legacy = null;
+    if (idbOk) { try { legacy = await IDB.get('kv', 'state'); } catch (e) { /* ok */ } }
+    if (!legacy) { try { legacy = JSON.parse(localStorage.getItem(LS_KEY)); } catch (e) { legacy = null; } }
+    if (legacy) meta = { active: 'ushuaia', trips: [{ id: 'ushuaia', name: 'Expedição Ushuaia • Fin del Mundo', mode: 'moto' }] };
+    else { const id = 't' + uid(); meta = { active: id, trips: [{ id, name: 'Minha viagem', mode: 'moto' }] }; }
+  }
   if (!meta.trips.some(t => t.id === meta.active)) meta.active = meta.trips[0].id;
   state = await readTrip(meta.active);
 }

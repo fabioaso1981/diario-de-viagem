@@ -321,6 +321,7 @@ function openSetup() {
 }
 function finishSetup(names, mode) {
   state.mode = MODES[mode] ? mode : 'moto';
+  if (names.length > maxPeople()) { names = names.slice(0, maxPeople()); toast(`O plano gratuito permite até ${FREE.people} pessoas. Os demais nomes ficaram de fora.`); }
   names.forEach(n => state.people.push({ id: uid(), name: n, active: true }));
   ensureVehicles();
   state.setupDone = true; save(); closeModal(); applyTheme(); refresh();

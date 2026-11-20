@@ -117,7 +117,10 @@ const fmtMoney = n => n.toFixed(2).replace('.', ',');
 const fmtLit = n => String(+n.toFixed(3)).replace('.', ',');
 const ocrChips = (list, target, fmt) => list.map(n => `<button type="button" class="chip" data-act="ocrPick" data-target="${target}" data-v="${fmt(n)}">${fmt(n)}</button>`).join('');
 
-function startOcr(ctx) { ocrCtx = ctx; $('ocrInput').click(); }
+function startOcr(ctx) {
+  if (!ocrLeft()) return toast(`Você usou as ${FREE.ocr} leituras por foto deste mês. Digite os valores ou veja o Pro.`, 'Ver Pro', () => openPaywall('ocr'));
+  ocrCtx = ctx; $('ocrInput').click();
+}
 $('ocrInput').addEventListener('change', e => {
   const f = e.target.files[0]; e.target.value = '';
   if (f && ocrCtx) runOcr(f, ocrCtx);
@@ -132,7 +135,9 @@ async function runOcr(file, ctx) {
     box.innerHTML = '⏳ Carregando o leitor… (na primeira vez pode demorar)';
     await OCR.load();
     const text = await OCR.recognize(blob, isOdo, p => { box.innerHTML = `⏳ Lendo a foto… ${Math.round(p * 100)}%`; });
+    ocrCount();
     if (isOdo) showOdoResult(box, ctx, text); else showReceiptResult(box, text);
+    if (ocrLeft() !== Infinity) toast(`Leituras por foto restantes neste mês: ${ocrLeft()}.`);
   } catch (err) {
     box.innerHTML = err && err.message === 'offline-sem-leitor'
       ? '📵 O leitor de fotos não está instalado para uso offline neste aparelho. Digite os valores manualmente.'

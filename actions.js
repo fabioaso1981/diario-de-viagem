@@ -66,7 +66,10 @@ const ACT = {
   trips: () => openTrips(),
   openTrip: d => openTripById(d.id),
   delTrip: d => deleteTrip(d.id),
-  planner: () => { closeModal(); openPlanner(); },
+  planner: () => { closeModal(); if (!canCreateTrip()) return openPaywall('trips'); openPlanner(); },
+  paywall: () => openPaywall(), paywallRoutes: () => openPaywall('routes'),
+  activateCode: () => activateCode(), startTrial: () => startTrial(),
+  routes: () => openRoutes(), routePrev: d => openRoutePreview(d.id), routeUse: d => openRouteUse(d.id), routeGo: d => routeCreate(d.id),
   plAdd: () => plAddRow(), plDel: d => plDelRow(+d.i), plCreate: () => plCreate(),
   oilDone: d => oilDone(d.id),
   addVehicle: () => { const i = $('new-vehicle'), n = i.value.trim(); if (!n) return toast('Digite o nome do veículo.'); state.vehicles.push({ id: uid(), name: n, active: true }); save(); renderGroup(); },
@@ -82,6 +85,7 @@ const ACT = {
   delItem: d => { state.customItems[d.list] = (state.customItems[d.list] || []).filter(c => c.id !== d.id); save(); renderLists(); },
   addPerson: () => {
     const i = $('new-person'), n = i.value.trim(); if (!n) return toast('Digite o nome.');
+    if (state.people.length >= maxPeople()) return openPaywall('people');
     state.people.push({ id: uid(), name: n, active: true });
     if (state.mode === 'moto') state.vehicles.push({ id: uid(), name: `Moto de ${n}`, active: true });
     save(); renderGroup(); renderHeader(); toast(`${n} entrou no grupo.`);

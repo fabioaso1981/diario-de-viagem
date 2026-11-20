@@ -10,8 +10,29 @@ Aplicativo web (PWA) para usar no celular durante a viagem. Depois de aberto uma
 
 ```
 index.html  style.css  data.js  core.js  app.js  modals.js  trips.js
-ocr.js  io.js  actions.js  boot.js  manifest.webmanifest  sw.js  icons/ (4 PNG)
+license.js  routes.js  ocr.js  io.js  actions.js  boot.js
+manifest.webmanifest  sw.js  icons/ (4 PNG)
 ```
+Novos na v1.3: `license.js` (planos e ativação) e `routes.js` (roteiros prontos). A pasta `marca/` e a pasta `licencas/` (fora de `app`) **não** vão para o GitHub.
+
+## Planos (v1.3)
+
+- **Gratuito:** começa sem roteiro; 1 roteiro pronto (Estrada Real); até 3 viagens; grupo de até 5 pessoas; 5 leituras por foto por mês.
+- **Pro (R$ 49,00 por ano):** 3 roteiros prontos (Ushuaia, Estrada Real, Jalapão), viagens e grupo sem limite, leitura por foto sem limite. Teste grátis de 14 dias.
+- **Organizador:** o código existe e hoje libera o mesmo que o Pro; as vantagens próprias ainda serão definidas.
+- Dados nunca são apagados quando o plano vence: só impede criar além do limite gratuito.
+
+### Gerar códigos de ativação (só no seu computador)
+
+Na pasta `licencas/` (fora do GitHub), em um PowerShell:
+
+```
+.\gerar-licenca.ps1 -Plano pro -Dias 365 -Nome "Maria"
+```
+
+O código sai em `licencas\codigo-XXXXXX.txt` e o registro em `emitidas.csv`. O cliente cola o código em *Mais ▸ Plano ▸ Ver planos e ativar código*; a conferência é feita no aparelho, sem internet.
+**Guarde uma cópia segura de `licencas/chave-privada.txt`.** Quem a tiver emite códigos; se for perdida, não dá para emitir códigos que o app aceite, e trocar a chave exige publicar outra versão do app.
+Para vender, preencha `BUY_URL` em `license.js` com o link de compra.
 
 Novos na v1.1: `modals.js`, `trips.js`, `ocr.js`, `io.js`, `actions.js`, `boot.js`. Alterados: `index.html`, `style.css`, `data.js`, `core.js`, `app.js`, `sw.js`.
 

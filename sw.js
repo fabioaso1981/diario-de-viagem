@@ -1,10 +1,10 @@
 'use strict';
 /* Service worker: guarda o app inteiro para uso 100% offline.
    Ao publicar uma nova versão dos arquivos, aumente VERSION para os aparelhos atualizarem. */
-const VERSION = 'v1.2.0';
+const VERSION = 'v1.3.0';
 const CACHE = 'ushuaia-' + VERSION;
 const SHELL = [
-  './', 'index.html', 'style.css', 'data.js', 'core.js', 'app.js', 'modals.js', 'trips.js', 'ocr.js', 'io.js', 'actions.js', 'boot.js',
+  './', 'index.html', 'style.css', 'data.js', 'core.js', 'app.js', 'modals.js', 'trips.js', 'license.js', 'routes.js', 'ocr.js', 'io.js', 'actions.js', 'boot.js',
   'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png'
 ];
 /* Leitor de fotos offline (opcional): só entra no cache se os arquivos existirem em vendor/tesseract/ */

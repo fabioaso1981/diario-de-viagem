@@ -199,7 +199,7 @@ function renderRoute() {
     <button class="chip" data-act="adjust">⚙️ Ajustar roteiro</button>
     <button class="chip" data-act="replan">🔀 Replanejar</button>
     ${mapsUrl ? `<a class="chip" href="${esc(mapsUrl)}" target="_blank" rel="noopener">🗺️ Rota completa</a>` : ''}</div>`;
-  if (!state.order.length) h += `<div class="card" style="text-align:center"><h3>Este roteiro ainda não tem dias</h3><div class="btnrow"><button class="btn amber" data-act="addFirstDay">➕ Adicionar primeiro dia</button><button class="btn" data-act="planner">🧭 Criar roteiro novo</button></div></div>`;
+  if (!state.order.length) h += `<div class="card" style="text-align:center"><h3>Este roteiro ainda não tem dias</h3><div class="btnrow"><button class="btn amber" data-act="addFirstDay">➕ Adicionar primeiro dia</button><button class="btn" data-act="planner">🧭 Criar roteiro novo</button><button class="btn" data-act="routes">📚 Roteiros prontos</button></div></div>`;
   else if (!days.length) h += `<div class="card" style="text-align:center"><h3>${routeFilter === 'pending' ? 'Nada pendente 🎉' : 'Nada para mostrar'}</h3><p class="muted small">${routeFilter === 'pending' ? 'Roteiro concluído! Parabéns pela viagem.' : ''}</p></div>`;
   let last = null;
   days.forEach(d => {
@@ -389,6 +389,7 @@ function renderMore() {
   let h = `<div class="stage">Viagens</div><div class="card">
     <p class="small muted">Você está em: <b>${esc(S.tripName)}</b> (${modeOf().icon} ${esc(modeOf().label)}).</p>
     <div class="btnrow"><button class="btn" data-act="trips">🧳 Trocar de viagem</button><button class="btn amber" data-act="planner">🧭 Novo roteiro</button></div></div>`;
+  h += planCardHTML();
   h += `<div class="stage">Backup & dados</div><div class="card">
     <p class="small muted">Último backup: <b>${last ? fmtDT(last) : 'nunca'}</b>. O arquivo guarda esta viagem (roteiro, gastos, grupo, veículos e listas). As fotos ficam só neste aparelho.</p>
     <div class="btnrow"><button class="btn" data-act="exportFile">📤 Exportar backup</button><button class="btn ghost" data-act="importPick">📥 Importar</button></div>
