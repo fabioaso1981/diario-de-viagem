@@ -32,9 +32,14 @@ function closeModal(fromPop) {
   $('modal').classList.add('hidden');
   $('sheet').innerHTML = '';
   modalOpen = false; modalDirty = false;
-  if (!fromPop && history.state && history.state.m) history.back();
+  if (!fromPop && history.state && history.state.m) { backPending = true; history.back(); }
 }
-window.addEventListener('popstate', () => { if (modalOpen) closeModal(true); });
+/* history.back() é assíncrono: se outra janela abrir logo após fechar esta, o "voltar" atrasado não deve fechá-la */
+let backPending = false;
+window.addEventListener('popstate', () => {
+  if (backPending) { backPending = false; return; }
+  if (modalOpen) closeModal(true);
+});
 const btns = (...b) => `<div class="btnrow">${b.join('')}</div>`;
 const B = (act, label, cls = '', extra = '') => `<button class="btn ${cls}" data-act="${act}" ${extra}>${label}</button>`;
 
