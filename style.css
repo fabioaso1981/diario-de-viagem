@@ -135,6 +135,11 @@ a.pill { text-decoration: none; }
 .sheet { position: relative; width: 100%; max-width: 700px; max-height: 92vh; overflow-y: auto; background: var(--card);
   border: 1px solid var(--border); border-bottom: 0; border-radius: 18px 18px 0 0; padding: 14px 14px calc(16px + env(safe-area-inset-bottom)); }
 .sheet h2 { font-size: 1.02rem; margin-bottom: 10px; }
+/* telas largas (computador): a janela fica no centro, não colada no rodapé */
+@media (min-width: 760px) and (min-height: 560px) {
+  .modal { align-items: center; }
+  .sheet { max-width: 560px; border-bottom: 1px solid var(--border); border-radius: 18px; padding-bottom: 16px; }
+}
 .fgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
 .fg { display: flex; flex-direction: column; gap: 3px; margin-bottom: 8px; min-width: 0; }
 .fgrid .fg { margin-bottom: 0; }

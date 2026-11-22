@@ -110,8 +110,8 @@ const ACT = {
     save(); closeModal(); renderMore();
   },
   delContact: d => { state.contacts = state.contacts.filter(c => c.id !== d.id); save(); closeModal(); renderMore(); },
-  setupGo: () => { const names = $('s-names').value.split('\n').map(s => s.trim()).filter(Boolean); finishSetup(names.length ? names : ['Pessoa 1', 'Pessoa 2', 'Pessoa 3'], $('s-mode').value); },
-  setupSkip: () => finishSetup(['Pessoa 1', 'Pessoa 2', 'Pessoa 3'], $('s-mode').value),
+  setupGo: () => { const names = $('s-names').value.split('\n').map(s => s.trim()).filter(Boolean); finishSetup(names.length ? names : ['Eu'], $('s-mode').value); },
+  setupSkip: () => finishSetup(['Eu'], $('s-mode').value),
   zerar: () => openModal(`<h2>🗑️ Apagar os dados desta viagem?</h2><p class="small">Isso remove marcações, gastos, grupo, anotações e fotos de <b>${esc(state.settings.tripName)}</b> <b>neste aparelho</b>. Faça um backup antes. Digite <b>ZERAR</b> para confirmar.</p>
     <div class="fg" style="margin-top:8px"><input type="text" id="z-conf" autocapitalize="characters"></div>${btns(B('zerarGo', 'Apagar', 'danger'), B('closeModal', 'Cancelar', 'ghost'))}`),
   zerarGo: async () => {

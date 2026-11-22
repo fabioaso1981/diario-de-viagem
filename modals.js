@@ -316,8 +316,8 @@ function openSetup() {
   openModal(`<h2>👋 Bem-vindo!</h2>
     <div class="fg"><label>Como a viagem será feita?</label><select id="s-mode">${Object.keys(MODES).map(k => `<option value="${k}" ${state.mode === k ? 'selected' : ''}>${MODES[k].icon} ${MODES[k].label}</option>`).join('')}</select></div>
     <p class="small muted" style="margin-bottom:8px">Quem vai na viagem? Um nome por linha. Você poderá adicionar ou tirar pessoas a qualquer momento na aba Grupo.</p>
-    <div class="fg"><textarea id="s-names" placeholder="Fábio&#10;Piloto 2&#10;Piloto 3"></textarea></div>
-    ${btns(B('setupGo', 'Começar', 'ok'), B('setupSkip', 'Pular (3 pessoas)', 'ghost'))}`);
+    <div class="fg"><textarea id="s-names" placeholder="Seu nome&#10;Outra pessoa (se houver)"></textarea></div>
+    ${btns(B('setupGo', 'Começar', 'ok'), B('setupSkip', 'Pular (só eu)', 'ghost'))}`);
 }
 function finishSetup(names, mode) {
   state.mode = MODES[mode] ? mode : 'moto';

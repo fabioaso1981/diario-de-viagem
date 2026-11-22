@@ -48,8 +48,9 @@ function renderHeader() {
   const st = tripStats(), n = activePeople().length, M = modeOf();
   $('badge').textContent = `${M.icon} ${n} ${n === 1 ? M.noun : M.nouns} • ${tripYear()}`;
   $('trip-title').textContent = state.settings.tripName + ' ▾';
-  $('pl-left').textContent = `${st.nDone} de ${st.act.length} dias concluídos`;
-  $('pl-right').textContent = `${nf(st.done)} / ${nf(st.total)} km (${st.pct}%)`;
+  $('badge').classList.toggle('hidden', !state.setupDone);
+  $('pl-left').textContent = st.act.length ? `${st.nDone} de ${st.act.length} dias concluídos` : 'Nenhum dia no roteiro ainda';
+  $('pl-right').textContent = st.act.length ? `${nf(st.done)} / ${nf(st.total)} km (${st.pct}%)` : '';
   $('fill').style.width = st.pct + '%';
   $('net').textContent = navigator.onLine ? '● online' : '○ offline';
   $('dash-btn').textContent = dashOpen ? 'Painel ▴' : 'Painel ▾';
