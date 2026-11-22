@@ -29,6 +29,9 @@ function licenseInfo() {
 }
 const planNow = () => licenseInfo().plan;
 const isPaid = () => planNow() !== 'free';
+/* Backup de todas as viagens: exclusivo do Organizador. Para liberar no Pro, troque 'org' por 'paid'. */
+const FULL_BACKUP_PLAN = 'org';
+const canFullBackup = () => FULL_BACKUP_PLAN === 'paid' ? isPaid() : planNow() === 'org';
 
 /* ----- limites ----- */
 const isEmptyTrip = s => !!s && !s.order.length && !s.expenses.length;
@@ -79,14 +82,16 @@ const PAY_REASON = {
   trips: `O plano gratuito permite até ${FREE.trips} viagens.`,
   people: `O plano gratuito permite grupos de até ${FREE.people} pessoas.`,
   ocr: `Você usou as ${FREE.ocr} leituras por foto deste mês.`,
-  routes: 'Este roteiro pronto faz parte do Pro.'
+  routes: 'Este roteiro pronto faz parte do Pro.',
+  backupAll: 'O backup de todas as viagens em um arquivo faz parte do plano Organizador.'
 };
 function openPaywall(reason) {
   const info = licenseInfo();
-  openModal(`<h2>⭐ DiBordo Pro</h2>
+  openModal(`<h2>⭐ Planos DiBordo</h2>
     ${PAY_REASON[reason] ? `<p class="small" style="color:var(--amber);font-weight:700;margin-bottom:6px">${PAY_REASON[reason]}</p>` : ''}
     <div class="box"><b>Gratuito</b><div class="small muted">${FREE.trips} viagens • grupo de até ${FREE.people} pessoas • ${FREE.ocr} leituras por foto por mês • 1 roteiro pronto (Estrada Real)</div></div>
     <div class="box"><b>Pro — ${PRICE_TXT}</b><div class="small">Viagens ilimitadas • grupo sem limite • leitura por foto sem limite • 3 roteiros prontos (Ushuaia, Estrada Real e Jalapão)</div></div>
+    <div class="box"><b>Organizador — R$ 149,00 por ano</b><div class="small">Tudo do Pro + backup de todas as viagens em um arquivo (com fotos e licença), útil para trocar de celular. Em breve: compartilhar roteiro por arquivo, modelos próprios, relatório de prestação de contas e nome do grupo nos materiais.</div></div>
     <p class="small muted" style="margin:6px 0">Se o plano vencer, você continua vendo e usando tudo o que já criou. Só não dá para criar além do limite gratuito.</p>
     ${BUY_URL ? `<a class="btn amber block" href="${esc(BUY_URL)}" target="_blank" rel="noopener">Assinar o Pro</a>` : `<p class="small muted">A compra será liberada em breve. Já tem um código? Cole abaixo.</p>`}
     <div class="fg" style="margin-top:8px"><label>Código de ativação</label><textarea id="lic-code" placeholder="Cole aqui o código recebido" autocapitalize="off" autocomplete="off" spellcheck="false"></textarea></div>

@@ -1,6 +1,30 @@
 'use strict';
 /* ===== Backup, resumo, CSV e importação ===== */
-function snapshot() { return JSON.stringify({ ...state, exportedAt: Date.now() }, null, 1); }
+/* ----- fotos dentro dos backups (ficam em base64 no arquivo) ----- */
+const blobToDataURL = b => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error); r.readAsDataURL(b); });
+async function photosForTrip(order, seen = new Set()) {
+  const out = [];
+  if (!idbOk || !IDB.db) return out;
+  for (const d of order) {
+    try { for (const p of await IDB.photosOf(d)) { if (seen.has(p.id)) continue; seen.add(p.id); out.push({ id: p.id, dayId: p.dayId, ts: p.ts, data: await blobToDataURL(p.blob) }); } } catch (e) { /* ok */ }
+  }
+  return out;
+}
+async function restorePhotos(list) {
+  let n = 0;
+  if (!Array.isArray(list) || !idbOk || !IDB.db) return n;
+  for (const p of list) {
+    try { const blob = await (await fetch(p.data)).blob(); await IDB.put('photos', { id: p.id, dayId: p.dayId, ts: p.ts, blob }); n++; } catch (e) { /* ok */ }
+  }
+  return n;
+}
+/* monta o JSON em partes (evita uma string gigante quando há muitas fotos) */
+function jsonBlob(base, photos) {
+  const parts = [JSON.stringify(base).slice(0, -1) + ',"photos":['];
+  photos.forEach((p, i) => parts.push((i ? ',' : '') + JSON.stringify(p)));
+  parts.push(']}');
+  return new Blob(parts, { type: 'application/json' });
+}
 function download(blob, name) {
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
   document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
@@ -15,8 +39,53 @@ async function shareOrDownload(blob, name, type) {
 }
 const fileSlug = () => state.settings.tripName.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase() || 'viagem';
 async function exportFile() {
-  const ok = await shareOrDownload(new Blob([snapshot()], { type: 'application/json' }), `${fileSlug()}-backup-${todayISO()}.json`, 'application/json');
-  if (ok) { markBackup(); toast('Backup exportado.'); }
+  persist();
+  const photos = await photosForTrip(state.order);
+  const ok = await shareOrDownload(jsonBlob({ ...state, exportedAt: Date.now() }, photos), `${fileSlug()}-backup-${todayISO()}.json`, 'application/json');
+  if (ok) { markBackup(); toast(`Backup exportado${photos.length ? ` (com ${photos.length} foto${photos.length > 1 ? 's' : ''})` : ''}.`); }
+}
+/* Backup de TODAS as viagens (plano Organizador): viagens, fotos, licença e configurações em um arquivo */
+async function exportAllFile() {
+  if (!canFullBackup()) return openPaywall('backupAll');
+  persist(); toast('Preparando o backup completo…');
+  const trips = {}, photos = [], seen = new Set();
+  for (const t of meta.trips) {
+    const s = t.id === state.id ? state : await readTrip(t.id);
+    trips[t.id] = s; photos.push(...await photosForTrip(s.order, seen));
+  }
+  const base = { app: 'ushuaia2027', kind: 'full', v: 1, exportedAt: Date.now(),
+    meta: { active: meta.active, trips: meta.trips, license: meta.license || null, trial: meta.trial || null, ocrUse: meta.ocrUse || null }, trips };
+  const ok = await shareOrDownload(jsonBlob(base, photos), `dibordo-backup-completo-${todayISO()}.json`, 'application/json');
+  if (ok) { markBackup(); toast(`Backup completo exportado: ${meta.trips.length} viagem(ns) e ${photos.length} foto(s).`); }
+}
+async function restoreAllDo() {
+  const inc = pendingImport; pendingImport = null;
+  if (!inc || inc.kind !== 'full') return;
+  const photos = inc.photos || []; delete inc.photos;
+  const list = ((inc.meta && inc.meta.trips) || []).filter(t => inc.trips && inc.trips[t.id]).map(t => { const s = migrate(inc.trips[t.id]); s.id = t.id; return s; });
+  if (!list.length) { closeModal(); return toast('O arquivo não tem nenhuma viagem.'); }
+  toast('Restaurando…');
+  persist();
+  /* apaga as viagens atuais (e suas fotos) e troca pelas do arquivo */
+  for (const t of [...meta.trips]) { const s = t.id === state.id ? state : await readTrip(t.id); await deleteTripPhotos(s.order); await dropTripData(t.id); }
+  meta.trips = list.map(s => ({ id: s.id, name: s.settings.tripName, mode: s.mode }));
+  meta.active = list.some(s => s.id === inc.meta.active) ? inc.meta.active : list[0].id;
+  state = list.find(s => s.id === meta.active); ensureVehicles();
+  for (const s of list) {
+    if (idbOk && IDB.db) { try { await IDB.put('kv', JSON.parse(JSON.stringify(s)), kvKey(s.id)); } catch (e) { /* ok */ } }
+    try { localStorage.setItem(lsKey(s.id), JSON.stringify(s)); } catch (e) { /* ok */ }
+  }
+  /* licença: só vale se a assinatura conferir e não estiver vencida; mantém a melhor entre a do arquivo e a deste aparelho */
+  const fl = inc.meta.license;
+  if (fl && fl.code) {
+    try { const L = await verifyCode(fl.code); if (L.exp >= todayISO() && (!meta.license || L.exp > meta.license.exp)) meta.license = { code: fl.code, plan: L.plan, exp: L.exp, id: L.id, name: L.name }; } catch (e) { /* código inválido: ignora */ }
+  }
+  if (inc.meta.trial && !meta.trial) meta.trial = inc.meta.trial;
+  const fu = inc.meta.ocrUse; if (fu && (!meta.ocrUse || (fu.m === meta.ocrUse.m && fu.n > meta.ocrUse.n))) meta.ocrUse = fu;
+  persist();
+  const np = await restorePhotos(photos);
+  resetUiForTrip(); applyTheme(); closeModal(); renderHeader(); renderView();
+  toast(`Backup completo restaurado: ${list.length} viagem(ns) e ${np} foto(s).`);
 }
 function summaryText() {
   const st = tripStats(), total = sumBRL(state.expenses), bal = balances();
@@ -75,18 +144,28 @@ $('importInput').addEventListener('change', e => {
       const obj = JSON.parse(r.result);
       if (obj.app !== 'ushuaia2027') throw new Error('arquivo inválido');
       pendingImport = obj;
-      openModal(`<h2>📥 Importar backup</h2><p class="small"><b>${esc((obj.settings && obj.settings.tripName) || 'Viagem')}</b> — ${(obj.expenses || []).length} lançamentos e ${(obj.people || []).length} pessoas${obj.exportedAt ? ' (exportado em ' + fmtDT(obj.exportedAt) + ')' : ''}.</p>
+      if (obj.kind === 'full') {
+        const names = ((obj.meta && obj.meta.trips) || []).map(t => esc(t.name)).join(', ');
+        const nT = ((obj.meta && obj.meta.trips) || []).length;
+        openModal(`<h2>📥 Restaurar backup completo</h2><p class="small"><b>${nT} viagem(ns):</b> ${names}.<br>${(obj.photos || []).length} foto(s)${obj.meta && obj.meta.license ? ' • inclui a licença do plano' : ''}${obj.exportedAt ? ' • exportado em ' + fmtDT(obj.exportedAt) : ''}.</p>
+          <p class="small neg" style="margin-top:6px"><b>Atenção:</b> restaurar troca TODAS as viagens deste aparelho pelas do arquivo. O que existe aqui e não está no arquivo será apagado.</p>
+          ${btns(B('restoreAll', 'Restaurar tudo', 'danger'), B('closeModal', 'Cancelar', 'ghost'))}`);
+        return;
+      }
+      openModal(`<h2>📥 Importar backup</h2><p class="small"><b>${esc((obj.settings && obj.settings.tripName) || 'Viagem')}</b> — ${(obj.expenses || []).length} lançamentos, ${(obj.people || []).length} pessoas${(obj.photos || []).length ? ' e ' + obj.photos.length + ' foto(s)' : ''}${obj.exportedAt ? ' (exportado em ' + fmtDT(obj.exportedAt) + ')' : ''}.</p>
         <p class="small muted" style="margin-top:6px"><b>Mesclar</b> mantém o que você já tem nesta viagem e acrescenta o que falta (ideal para juntar dados do grupo). <b>Substituir</b> troca esta viagem pelo arquivo. <b>Nova viagem</b> adiciona como outra viagem.</p>
         ${btns(B('importDo', 'Mesclar', 'ok', 'data-mode="merge"'), B('importDo', 'Nova viagem', 'amber', 'data-mode="new"'), B('importDo', 'Substituir', 'danger', 'data-mode="replace"'), B('closeModal', 'Cancelar', 'ghost'))}`);
     } catch (err) { toast('Arquivo inválido: não é um backup deste app.'); }
   };
   r.readAsText(f);
 });
-function importDo(mode) {
+async function importDo(mode) {
   const inc = pendingImport; pendingImport = null; if (!inc) return;
+  const photos = inc.photos; delete inc.photos;   /* as fotos não fazem parte do estado da viagem */
   if (mode === 'replace') { const s = migrate(inc); s.id = state.id; state = s; }
   else if (mode === 'new') { persist(); const s = migrate(inc); s.id = 't' + uid(); state = s; meta.active = s.id; resetUiForTrip(); }
   else mergeState(inc);
   save(); persist(); applyTheme(); closeModal(); renderHeader(); renderView();
-  toast(mode === 'replace' ? 'Dados substituídos.' : mode === 'new' ? 'Viagem importada.' : 'Dados mesclados.');
+  const np = await restorePhotos(photos);
+  toast((mode === 'replace' ? 'Dados substituídos.' : mode === 'new' ? 'Viagem importada.' : 'Dados mesclados.') + (np ? ` ${np} foto(s) restaurada(s).` : ''));
 }

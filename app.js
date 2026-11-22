@@ -11,13 +11,13 @@ function applyTheme() {
   document.documentElement.setAttribute('data-theme', eff);
   document.body.classList.toggle('gloves', !!state.settings.gloves);
 }
-function toast(msg, label, fn) {
+function toast(msg, label, fn, sticky) {
   const t = $('toast');
   t.innerHTML = `<span>${esc(msg)}</span>` + (label ? `<button data-act="toastAct">${esc(label)}</button>` : '');
   toastFn = fn || null;
   t.classList.add('show');
   clearTimeout(toastT);
-  toastT = setTimeout(() => t.classList.remove('show'), label ? 8000 : 2800);
+  if (!sticky) toastT = setTimeout(() => t.classList.remove('show'), label ? 8000 : 2800);
 }
 function openModal(html) {
   $('sheet').innerHTML = html;
@@ -397,8 +397,10 @@ function renderMore() {
     <div class="btnrow"><button class="btn" data-act="trips">🧳 Trocar de viagem</button><button class="btn amber" data-act="planner">🧭 Novo roteiro</button></div></div>`;
   h += planCardHTML();
   h += `<div class="stage">Backup & dados</div><div class="card">
-    <p class="small muted">Último backup: <b>${last ? fmtDT(last) : 'nunca'}</b>. O arquivo guarda esta viagem (roteiro, gastos, grupo, veículos e listas). As fotos ficam só neste aparelho.</p>
+    <p class="small muted">Último backup: <b>${last ? fmtDT(last) : 'nunca'}</b>. O arquivo guarda esta viagem (roteiro, gastos, grupo, veículos, listas e as fotos anexadas).</p>
     <div class="btnrow"><button class="btn" data-act="exportFile">📤 Exportar backup</button><button class="btn ghost" data-act="importPick">📥 Importar</button></div>
+    <div class="btnrow"><button class="btn ${canFullBackup() ? 'amber' : 'ghost'}" data-act="exportAll">🗂️ Backup de todas as viagens${canFullBackup() ? '' : ' 🔒'}</button></div>
+    <p class="small muted">${canFullBackup() ? 'Guarda todas as viagens, fotos e a licença em um só arquivo. Para restaurar, use Importar.' : 'O backup de todas as viagens em um arquivo é do plano Organizador.'}</p>
     <div class="btnrow"><button class="btn ghost" data-act="exportText">📋 Copiar resumo</button><button class="btn ghost" data-act="exportCsv">📊 Gastos (CSV)</button></div>
     <p class="small muted" style="margin-top:8px">Dica para o grupo: cada um exporta o seu arquivo e os outros usam <b>Importar ▸ Mesclar</b> para juntar os lançamentos.</p>
     <p class="small" id="persist-state"></p><button class="btn sm ghost" data-act="persist">🔒 Proteger dados contra limpeza do navegador</button></div>`;
@@ -430,6 +432,8 @@ function renderMore() {
 
   h += `<div class="stage">App & uso offline</div><div class="card">
     <p class="small" id="sw-state">Verificando…</p>
+    <p class="small muted" id="ver-state"></p>
+    <div class="btnrow"><button class="btn ghost" data-act="checkUpdate">🔄 Verificar atualização</button></div>
     <p class="small" id="ocr-state"></p>
     ${deferredInstall ? `<div class="btnrow"><button class="btn ok" data-act="install">⬇️ Instalar app</button></div>` : ''}
     <p class="small muted"><b>Android (Chrome):</b> menu ⋮ ▸ Instalar app. <b>iPhone (Safari):</b> Compartilhar ▸ Adicionar à Tela de Início.
@@ -437,7 +441,11 @@ function renderMore() {
 
   h += `<div class="stage">Zona de perigo</div><div class="card"><button class="btn danger block" data-act="zerar">🗑️ Apagar todos os dados desta viagem</button></div>`;
   $('view').innerHTML = h;
-  updatePersistState(); updateSwState(); updateOcrState();
+  updatePersistState(); updateSwState(); updateOcrState(); updateVersionState();
+}
+async function updateVersionState() {
+  const el = $('ver-state'); if (!el) return;
+  try { const m = /VERSION\s*=\s*'([^']+)'/.exec(await (await fetch('sw.js')).text()); el.textContent = m ? `Versão instalada: ${m[1]}` : ''; } catch (e) { /* offline: sem número */ }
 }
 async function updatePersistState() {
   const el = $('persist-state'); if (!el) return;
